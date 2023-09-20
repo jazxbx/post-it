@@ -10,6 +10,41 @@ postsRouter.get("/", async (req, res) => {
     const posts = await prisma.post.findMany({
       include: { user: true, subreddit: true, upvotes: true, downvotes: true },
     });
+    if (posts.length === 0) {
+      res.send({ success: false, message: "No posts found in database" });
+    } else {
+      res.send({ success: true, posts });
+    }
+  } catch (error) {
+    res.send({ success: false, error: error.message });
+  }
+});
+
+//CREATE POST   POST REQ  route: /posts
+
+postsRouter.post("/", async (req, res) => {
+  try {
+    const { text, title } = req.body;
+    if (!text || !title) {
+      return res.send({
+        success: false,
+        error: "Please include both text and title when creating a post.",
+      });
+    }
+
+    if (!req.user) {
+      return res.send({
+        success: false,
+        error: "Please login to submit post.",
+      });
+    }
+    const posts = await prisma.post.create({
+      data: {
+        text,
+        title,
+        userId: req.user.id,
+      },
+    });
     res.send({ success: true, posts });
   } catch (error) {
     res.send({ success: false, error: error.message });

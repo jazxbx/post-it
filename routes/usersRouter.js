@@ -9,9 +9,19 @@ export const usersRouter = express.Router();
 usersRouter.post("/register", async (req, res) => {
   try {
     const { username, password } = req.body;
+
+    const trimmedUsername = username.trim();
+    const trimmedPassword = password.trim();
+
+    if (!trimmedUsername || !trimmedPassword) {
+      return res.send({
+        success: false,
+        error: "Username and password required",
+      });
+    }
     const checkUser = await prisma.user.findUnique({
       where: {
-        username,
+        username: trimmedUsername,
       },
     });
     if (checkUser) {
@@ -22,9 +32,10 @@ usersRouter.post("/register", async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const user = await prisma.user.create({
       data: {
-        username,
+        username: trimmedUsername,
         password: hashedPassword,
       },
     });
@@ -85,6 +96,7 @@ usersRouter.post("/login", async (req, res) => {
   }
 });
 
+// READ USER TOKEN  GET REQ   route: users/token
 usersRouter.get("/token", async (req, res) => {
   try {
     res.send({
