@@ -57,7 +57,7 @@ subredditsRouter.delete("/:subredditId", async (req, res) => {
     });
 
     if (!subreddit) {
-      res.send({
+      return res.send({
         success: false,
         error: "Subreddit not found!",
       });

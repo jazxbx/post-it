@@ -40,7 +40,7 @@ postsRouter.post("/", async (req, res) => {
     }
 
     // console.log(req.user);
-    const posts = await prisma.post.create({
+    const post = await prisma.post.create({
       data: {
         text,
         title,
@@ -48,18 +48,87 @@ postsRouter.post("/", async (req, res) => {
         userId: req.user.id,
       },
     });
-    res.send({ success: true, posts });
+    res.send({ success: true, post });
   } catch (error) {
     res.send({ success: false, error: error.message });
   }
 });
 
 // EDIT POST  PUT REQ   route: /posts/postId
-
-postsRouter.put("/:postId", (req, res) => {
+postsRouter.put("/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
-    const { title, text } = req.body;
+    const { text, title } = req.body;
+
+    // look for post
+    const findPost = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    console.log(findPost);
+
+    if (!findPost) {
+      return res.send({
+        success: false,
+        error: "Post not found!",
+      });
+    }
+    // check if creator of post matches with user requesting to edit post
+    if (findPost.userId !== req.user.id) {
+      return res.send({
+        success: false,
+        error: "User unauthorized to edit post",
+      });
+    }
+    const post = await prisma.post.update({
+      where: { id: postId },
+      data: {
+        text,
+        title,
+        userId: req.user.id,
+      },
+    });
+
+    res.send({ success: true, post });
+  } catch (error) {
+    res.send({ success: false, error: error.message });
+  }
+});
+
+// DELETE POST   DELETE RQ  path: /posts/:postId
+
+postsRouter.delete("/:postId", async (req, res) => {
+  try {
+    const { postId } = req.params;
+    // look for post
+    const findPost = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+    });
+
+    console.log("URL", findPost);
+
+    if (!findPost) {
+      return res.send({
+        success: false,
+        error: "Post not found!",
+      });
+    }
+    // check if creator of post matches with user requesting to edit post
+    if (findPost.userId !== req.user.id) {
+      return res.send({
+        success: false,
+        error: "User unauthorized to delete post",
+      });
+    }
+    const post = await prisma.post.delete({
+      where: { id: postId },
+    });
+
+    res.send({ success: true, post });
   } catch (error) {
     res.send({ success: false, error: error.message });
   }
