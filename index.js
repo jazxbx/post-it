@@ -6,6 +6,8 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { postsRouter } from "./routes/postsRouter.js";
 import { usersRouter } from "./routes/usersRouter.js";
+import { subredditsRouter } from "./routes/subredditsRouter.js";
+
 dotenv.config();
 
 const app = express();
@@ -17,6 +19,7 @@ app.use(cors());
 // Middleware to auth tokens
 
 app.use(async (req, res, next) => {
+  // check if theres an auth token in header and console it
   try {
     if (!req.headers.authorization) {
       return next();
@@ -27,7 +30,7 @@ app.use(async (req, res, next) => {
     const { userId } = jwt.verify(token, process.env.JWT_SECRET);
     const user = await prisma.user.findUnique({
       where: {
-        userId,
+        id: userId,
       },
     });
     if (!user) {
@@ -43,6 +46,7 @@ app.use(async (req, res, next) => {
 
 app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
+app.use("/subreddits", subredditsRouter);
 
 // Welcome
 app.get("/", (req, res) => {
