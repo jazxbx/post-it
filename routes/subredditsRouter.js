@@ -8,6 +8,7 @@ export const subredditsRouter = express.Router();
 subredditsRouter.post("/", async (req, res) => {
   try {
     const { name } = req.body;
+    console.log(req.body);
     if (!name) {
       return res.send({ success: false, error: "Invalid subreddit name" });
     }
@@ -40,5 +41,41 @@ subredditsRouter.get("/", async (req, res) => {
     res.send({ success: true, subreddits });
   } catch (error) {
     res.send({ success, error: error.message });
+  }
+});
+
+// DELETE SUBREDDIT  DELETE REQ  route: /subreddits/:subredditId
+
+subredditsRouter.delete("/:subredditId", async (req, res) => {
+  try {
+    const { subredditId } = req.params;
+
+    const subreddit = await prisma.subreddit.findUnique({
+      where: {
+        id: subredditId,
+      },
+    });
+
+    if (!subreddit) {
+      res.send({
+        success: false,
+        error: "Subreddit not found!",
+      });
+    }
+
+    if (subreddit.userId !== req.user.id) {
+      return res.send({
+        success: false,
+        error: "User unauthorized to delete subreddit",
+      });
+    }
+
+    const deleteSubreddit = await prisma.subreddit.delete({
+      where: { id: subredditId },
+    });
+
+    res.send({ success: true, deleteSubreddit });
+  } catch (error) {
+    res.send({ success: false, error: error.message });
   }
 });

@@ -24,7 +24,7 @@ postsRouter.get("/", async (req, res) => {
 
 postsRouter.post("/", async (req, res) => {
   try {
-    const { text, title } = req.body;
+    const { text, title, subredditId } = req.body;
     if (!text || !title) {
       return res.send({
         success: false,
@@ -38,14 +38,28 @@ postsRouter.post("/", async (req, res) => {
         error: "Please login to submit post.",
       });
     }
+
+    // console.log(req.user);
     const posts = await prisma.post.create({
       data: {
         text,
         title,
+        subredditId: subredditId,
         userId: req.user.id,
       },
     });
     res.send({ success: true, posts });
+  } catch (error) {
+    res.send({ success: false, error: error.message });
+  }
+});
+
+// EDIT POST  PUT REQ   route: /posts/postId
+
+postsRouter.put("/:postId", (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { title, text } = req.body;
   } catch (error) {
     res.send({ success: false, error: error.message });
   }
