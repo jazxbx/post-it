@@ -52,7 +52,7 @@ app.use("/votes", votesRouter);
 
 // Welcome
 app.get("/", (req, res) => {
-  res.send({ success: true, message: "Welcome to the Post-it server " });
+  res.send({ success: true, message: "Welcome to the Redidit-server " });
 });
 
 app.use((req, res) => {
