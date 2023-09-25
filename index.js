@@ -7,6 +7,7 @@ import dotenv from "dotenv";
 import { postsRouter } from "./routes/postsRouter.js";
 import { usersRouter } from "./routes/usersRouter.js";
 import { subredditsRouter } from "./routes/subredditsRouter.js";
+import { votesRouter } from "./routes/votesRouter.js";
 
 dotenv.config();
 
@@ -47,6 +48,7 @@ app.use(async (req, res, next) => {
 app.use("/posts", postsRouter);
 app.use("/users", usersRouter);
 app.use("/subreddits", subredditsRouter);
+app.use("/votes", votesRouter);
 
 // Welcome
 app.get("/", (req, res) => {
