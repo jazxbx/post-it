@@ -40,11 +40,15 @@ votesRouter.post("/upvotes/:postId", async (req, res) => {
   }
 });
 
-// //REMOVE UPVOTE   DELETE REQ  route: /votes/upvote/:postId
+// //REMOVE UPVOTE   DELETE REQ  route: /votes/upvotes/:postId
 
 votesRouter.delete("/upvotes/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
+
+    if (!postId) {
+      return res.send({ success: false, error: "Invalid postId" });
+    }
 
     const upvote = await prisma.upvote.delete({
       where: {
@@ -59,7 +63,7 @@ votesRouter.delete("/upvotes/:postId", async (req, res) => {
 
 // DOWNVOTES
 
-// //CREATE DOWNVOTE   POST REQ  route: /votes/downvotes/:postId
+//CREATE DOWNVOTE   POST REQ  route: /votes/downvotes/:postId
 
 votesRouter.post("/downvotes/:postId", async (req, res) => {
   try {
@@ -69,7 +73,6 @@ votesRouter.post("/downvotes/:postId", async (req, res) => {
       return res.send({ success: false, error: "No post found" });
     }
 
-    //checking if user already liked post. Without this code, prisma will throw unique constraint error. Mej vague tbh
     const existingDownvote = await prisma.downvote.findFirst({
       where: {
         userId: req.user.id,
@@ -80,7 +83,7 @@ votesRouter.post("/downvotes/:postId", async (req, res) => {
     if (existingDownvote) {
       return res.send({
         success: false,
-        error: "User already liked the post.",
+        error: "User already downvoted this post",
       });
     }
 
@@ -96,11 +99,15 @@ votesRouter.post("/downvotes/:postId", async (req, res) => {
   }
 });
 
-// //REMOVE DOWNVOTE   DELETE REQ  route: /votes/downvotes/:postId
+//REMOVE DOWNVOTE   DELETE REQ  route: /votes/downvotes/:postId
 
 votesRouter.delete("/downvotes/:postId", async (req, res) => {
   try {
     const { postId } = req.params;
+
+    if (!postId) {
+      return res.send({ success: false, error: "Invalid postId" });
+    }
 
     const downvote = await prisma.downvote.delete({
       where: {
