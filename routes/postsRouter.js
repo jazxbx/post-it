@@ -20,6 +20,60 @@ postsRouter.get("/", async (req, res) => {
   }
 });
 
+//Get post
+
+postsRouter.get("/:postId", async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const post = await prisma.post.findUnique({
+      where: {
+        id: postId,
+      },
+      include: { user: true, subreddit: true, upvotes: true, downvotes: true },
+    });
+
+    res.send({ success: true, post });
+  } catch (error) {
+    res.send({ success: false, error: error.message });
+  }
+});
+
+//READ ALL POSTS WITH CHILDREN
+
+// postsRouter.get("/", async (req, res) => {
+//   try {
+//     const nestPosts = (posts, parentId = null) => {
+//       const nestedPosts = [];
+
+//       for (const post of posts) {
+//         if (post.parentId === parentId) {
+//           const children = nestPosts(posts, post.id);
+//           if (post.length > 0) {
+//             post.children = children;
+//           }
+//           nestedPosts.push(post);
+//         }
+//       }
+//       return nestedPosts;
+//     };
+
+//     const posts = await prisma.post.findMany({
+//       include: {
+//         user: true,
+//         subreddit: true,
+//         upvotes: true,
+//         downvotes: true,
+//         children: true,
+//       },
+//     });
+
+//     const nestedPosts = nestPosts(posts);
+//     res.send({ success: true, posts: nestedPosts });
+//   } catch (error) {
+//     res.send({ success: false, error: error.message });
+//   }
+// });
+
 //CREATE POST   POST REQ  route: /posts
 
 postsRouter.post("/", async (req, res) => {
