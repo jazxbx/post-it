@@ -31,7 +31,11 @@ postsRouter.get("/:postId", async (req, res) => {
       },
       include: {
         user: true,
-        children: true,
+        children: {
+          include: {
+            user: true,
+          },
+        },
         subreddit: true,
         upvotes: true,
         downvotes: true,
@@ -104,6 +108,7 @@ postsRouter.post("/", async (req, res) => {
       data: {
         text,
         title,
+        parentId,
         subredditId: subredditId,
         userId: req.user.id,
       },
