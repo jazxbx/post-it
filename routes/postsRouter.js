@@ -38,7 +38,7 @@ postsRouter.get("/:postId", async (req, res) => {
       },
     });
 
-    res.send({ success: true, post });
+    res.send({ success: true, post: post });
   } catch (error) {
     res.send({ success: false, error: error.message });
   }
