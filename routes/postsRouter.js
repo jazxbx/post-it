@@ -5,20 +5,20 @@ export const postsRouter = express.Router();
 
 //READ ALL POSTS  GET REQ   route: /posts
 
-postsRouter.get("/", async (req, res) => {
-  try {
-    const posts = await prisma.post.findMany({
-      include: { user: true, subreddit: true, upvotes: true, downvotes: true },
-    });
-    if (posts.length === 0) {
-      res.send({ success: false, message: "No posts found in database" });
-    } else {
-      res.send({ success: true, posts });
-    }
-  } catch (error) {
-    res.send({ success: false, error: error.message });
-  }
-});
+// postsRouter.get("/", async (req, res) => {
+//   try {
+//     const posts = await prisma.post.findMany({
+//       include: { user: true, subreddit: true, upvotes: true, downvotes: true },
+//     });
+//     if (posts.length === 0) {
+//       res.send({ success: false, message: "No posts found in database" });
+//     } else {
+//       res.send({ success: true, posts });
+//     }
+//   } catch (error) {
+//     res.send({ success: false, error: error.message });
+//   }
+// });
 
 //Get post
 
@@ -29,7 +29,13 @@ postsRouter.get("/:postId", async (req, res) => {
       where: {
         id: postId,
       },
-      include: { user: true, subreddit: true, upvotes: true, downvotes: true },
+      include: {
+        user: true,
+        children: true,
+        subreddit: true,
+        upvotes: true,
+        downvotes: true,
+      },
     });
 
     res.send({ success: true, post });
@@ -40,39 +46,35 @@ postsRouter.get("/:postId", async (req, res) => {
 
 //READ ALL POSTS WITH CHILDREN
 
-// postsRouter.get("/", async (req, res) => {
-//   try {
-//     const nestPosts = (posts, parentId = null) => {
-//       const nestedPosts = [];
+postsRouter.get("/", async (req, res) => {
+  try {
+    const nestPostsRecursively = (allPosts, parentId = null) => {
+      const nestedPosts = [];
 
-//       for (const post of posts) {
-//         if (post.parentId === parentId) {
-//           const children = nestPosts(posts, post.id);
-//           if (post.length > 0) {
-//             post.children = children;
-//           }
-//           nestedPosts.push(post);
-//         }
-//       }
-//       return nestedPosts;
-//     };
+      for (const post of allPosts) {
+        if (post.parentId === parentId) {
+          const children = nestPostsRecursively(allPosts, post.id);
+          if (children.length > 0) {
+            post.children = children;
+          }
+          nestedPosts.push(post);
+        }
+      }
+      return nestedPosts;
+    };
 
-//     const posts = await prisma.post.findMany({
-//       include: {
-//         user: true,
-//         subreddit: true,
-//         upvotes: true,
-//         downvotes: true,
-//         children: true,
-//       },
-//     });
+    const posts = await prisma.post.findMany({
+      include: {
+        children: true,
+      },
+    });
 
-//     const nestedPosts = nestPosts(posts);
-//     res.send({ success: true, posts: nestedPosts });
-//   } catch (error) {
-//     res.send({ success: false, error: error.message });
-//   }
-// });
+    const nestedPosts = nestPostsRecursively(posts);
+    res.send({ success: true, posts: nestedPosts });
+  } catch (error) {
+    res.send({ success: false, error: error.message });
+  }
+});
 
 //CREATE POST   POST REQ  route: /posts
 
