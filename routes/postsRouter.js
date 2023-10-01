@@ -70,7 +70,6 @@ postsRouter.get("/", async (req, res) => {
         subreddit: true,
         upvotes: true,
         downvotes: true,
-        children: true,
       },
     });
 

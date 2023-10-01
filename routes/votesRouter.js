@@ -12,7 +12,6 @@ votesRouter.post("/upvotes/:postId", async (req, res) => {
     if (!postId) {
       return res.send({ success: false, error: "No post found" });
     }
-
     //checking if user already liked post. Without this code, prisma will throw unique constraint error. Mej vague tbh
     const existingUpvote = await prisma.upvote.findFirst({
       where: {
@@ -73,19 +72,27 @@ votesRouter.post("/downvotes/:postId", async (req, res) => {
       return res.send({ success: false, error: "No post found" });
     }
 
-    const existingDownvote = await prisma.downvote.findFirst({
-      where: {
-        userId: req.user.id,
-        postId,
-      },
-    });
+    // const existingDownvote = await prisma.downvote.findFirst({
+    //   where: {
+    //     userId: req.user.id,
+    //     postId,
+    //   },
+    // });
 
-    if (existingDownvote) {
-      return res.send({
-        success: false,
-        error: "User already downvoted this post",
-      });
-    }
+    // if (existingDownvote) {
+    //   return res.send({
+    //     success: false,
+    //     error: "User already downvoted this post",
+    //   });
+    // }
+
+    // if (existingUpvote) {
+    //   await prisma.upvote.delete({
+    //     where: {
+    //       userId_postId: { userId: req.user.id, postId },
+    //     },
+    //   });
+    // }
 
     const downvote = await prisma.downvote.create({
       data: {
