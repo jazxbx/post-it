@@ -108,8 +108,8 @@ postsRouter.post("/", async (req, res) => {
       data: {
         text,
         title,
-        parentId,
-        subredditId: subredditId,
+        // parentId,
+        subredditId,
         userId: req.user.id,
       },
     });
